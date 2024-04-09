@@ -1,46 +1,38 @@
 <template>
-    <div class="container" v-if="$store.state.pk.status === 'playing'">
-        <UserAvatar class="playing-user" :user="user1"></UserAvatar>
+    <div class="container" v-if="$store.state.pk.status === 'playing' || $store.state.pk.status === 'over'">
+        <div>
+            <UserAvatar class="playing-user" :user="user1"></UserAvatar>
+            <CountDown :class="$store.state.pk.away ? 'count-down-b' : 'count-down-a'" />
+        </div>
         <PlayGround />
-        <UserAvatar class="playing-user" :user="user2"></UserAvatar>
-    </div>
-    <div v-else>
-        <div class="container" style="margin-top: 10vh;">
-            <UserAvatar class="matching-user" :user="user1"></UserAvatar>
-            <div class="bot-select">
-                <UserAvatar class="matching-user" :user="user2"></UserAvatar>
-                <select class="form-select" :disabled="$store.state.pk.status !== 'waiting'" style=" margin-top: 10%; width: 50%; ">
-                    <option value="-1" selected>玩家匹配</option>
-                    <option value="1">人机：简单</option>
-                    <option value="2">人机：困难</option>
-                </select>
-            </div>
-        </div>
-        <div class="col-12" style="text-align: center; padding-top: 10vh;">
-            <button type="button" :class="btnMessage === '开始匹配' ? 'btn btn-warning btn-lg' : 'btn btn-danger btn-lg'"
-                style="width: 15%;" @click="matchBtnClick">{{ btnMessage }}</button>
+        <div>
+            <UserAvatar class="playing-user" :user="user2"></UserAvatar>
+            <CountDown :class="$store.state.pk.away ? 'count-down-a' : 'count-down-b'" />
         </div>
     </div>
+    <MatchGround v-else />
 </template>
 
 <script>
 import PlayGround from '@/components/PlayGround.vue';
+import MatchGround from '@/components/MatchGround.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
+import CountDown from '@/components/CountDown.vue';
 import store from '@/store';
-import { inject, onMounted } from 'vue';
-import { ref } from 'vue';
+import { inject, onMounted, ref } from 'vue';
 
 export default {
     components: {
         PlayGround,
-        UserAvatar
+        MatchGround,
+        UserAvatar,
+        CountDown
     },
     setup() {
         const alertBoxRef = inject('alertBoxRef');
-        let btnMessage = ref('开始匹配');
 
-        let scoket = null;
-        const scoketUrl = `ws://127.0.0.1:2002/websocket/${store.state.user.token}/`;
+        let socket = null;
+        const socketUrl = `ws://127.0.0.1:2002/websocket/${store.state.user.token}/`;
 
         const user1 = {
             username: store.state.user.username,
@@ -50,30 +42,30 @@ export default {
         let user2 = ref({
             username: store.state.pk.opponent_username,
             avatar: store.state.pk.opponent_avatar
+            // username: store.state.user.username,
+            // avatar: store.state.user.avatar
         })
-        const updateUser2 = () => {
-            user2.value.username = store.state.pk.username;
-            user2.value.avatar = store.state.pk.opponent_avatar;
-        }
+
+        const color = ['black', 'rgb(88, 185, 157)'];
 
         onMounted(() => {
             store.commit('resetState')
-            updateUser2();
 
-            scoket = new WebSocket(scoketUrl);
+            socket = new WebSocket(socketUrl);
 
-            scoket.onopen = () => {
+            socket.onopen = () => {
                 console.log('Connected!');
-                store.commit('updateSocket', scoket);
+                store.commit('updateSocket', socket);
+                console.log(store.state.pk.socket);
             }
 
-            scoket.onmessage = msg => {
+            socket.onmessage = msg => {
                 const data = JSON.parse(msg.data);
+                console.log(data);
                 switch (data.event) {
                     case 'start-matching-response':
                         if (data.status === 'success') {
                             store.commit('updateStatus', 'matching');
-                            btnMessage.value = '取消匹配';
                             alertBoxRef.value.showAlertWithProperties('正在匹配对手，请稍等！', 'alert-info');
                         } else {
                             alertBoxRef.value.showAlertWithProperties('匹配失败，请重试！', 'alert-danger');
@@ -82,7 +74,6 @@ export default {
                     case 'cancel-matching-response':
                         if (data.status === 'success') {
                             store.commit('updateStatus', 'waiting');
-                            btnMessage.value = '开始匹配';
                             alertBoxRef.value.showAlertWithProperties('已取消匹配！', 'alert-warning');
                         } else {
                             alertBoxRef.value.showAlertWithProperties('取消匹配失败，请重试！', 'alert-danger');
@@ -101,9 +92,22 @@ export default {
                             opponent_avatar: data.opponent_avatar,
                             away: data.away,
                             success() {
-                                updateUser2();
+                                user2.value.username = store.state.pk.opponent_username;
+                                user2.value.avatar = store.state.pk.opponent_avatar;
                             }
                         })
+                        break;
+                    case 'put-piece':
+                        store.commit('updateRound');
+                        if (store.state.pk.round % 2 == 1) {
+                            store.state.pk.gameMap.putPiece(data.x, data.y, color[0]);
+                        } else if (store.state.pk.round % 2 == 0) {
+                            store.state.pk.gameMap.putPiece(data.x, data.y, color[1]);
+                        }
+                        break;
+                    case 'game-over':
+                        store.commit('updateStatus', 'over');
+                        alertBoxRef.value.showAlertWithProperties('游戏结束！', 'alert-success');
                         break;
                     default:
                         break;
@@ -111,31 +115,10 @@ export default {
             }
         })
 
-        const matchBtnClick = () => {
-            if (store.state.pk.status === 'matching') {
-                scoket.send(JSON.stringify({
-                    event: 'cancel-matching'
-                }));
-                // store.commit('updateStatus', 'waiting');
-                // btnMessage.value = '开始匹配';
-                // alertBoxRef.value.showAlertWithProperties('已取消匹配！', 'alert-warning');
-            } else {
-                scoket.send(JSON.stringify({
-                    event: 'start-matching',
-                    opponent: 'people'
-                }));
-                // store.commit('updateStatus', 'matching');
-                // btnMessage.value = '取消匹配';
-                // alertBoxRef.value.showAlertWithProperties('正在匹配对手，请稍等！', 'alert-info');
-            }
-        }
-
         return {
             user1,
             user2,
             alertBoxRef,
-            btnMessage,
-            matchBtnClick
         }
     }
 }
@@ -164,29 +147,5 @@ export default {
     background-position: center;
     border-radius: 50%;
     margin-top: 10vh;
-}
-
-.matching-user /deep/ .user-avatar {
-    width: 15vw;
-    height: 15vw;
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    margin-top: 10vh;
-}
-
-.class-opponent-avatar {
-    width: 15vw;
-    height: 15vw;
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    margin-top: 10vh;
-}
-
-.bot-select {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 </style>

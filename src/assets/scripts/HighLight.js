@@ -21,6 +21,10 @@ export class HighLight extends GameObject {
             return;
         }
 
+        if (this.gameMap.store.state.pk.status == 'over') {
+            return;
+        }
+
         const centerX = selectedPoint.x * gridSize;
         const cneterY = selectedPoint.y * gridSize;
 

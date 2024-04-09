@@ -14,6 +14,6 @@ export default createStore({
   },
   modules: {
     pk: ModulePk,
-    user: ModuleUser
+    user: ModuleUser,
   }
 })

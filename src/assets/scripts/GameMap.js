@@ -98,15 +98,32 @@ export class GameMap extends GameObject {
 
     handleMouseClick() {
         if (this.selectedPoint && !this.GAME_MAP[this.selectedPoint.x][this.selectedPoint.y]) {
-            const pieceInfo = {
-                // color: 'black',
-                color: 'rgb(88, 185, 157)',
-                x: this.selectedPoint.x,
-                y: this.selectedPoint.y
-            }
-            new Piece(pieceInfo, this);
-            this.GAME_MAP[this.selectedPoint.x][this.selectedPoint.y] = true;
+            // const pieceInfo = {
+            //     // color: 'black',
+            //     color: 'rgb(88, 185, 157)',
+            //     x: this.selectedPoint.x,
+            //     y: this.selectedPoint.y
+            // }
+            // new Piece(pieceInfo, this);
+            // this.GAME_MAP[this.selectedPoint.x][this.selectedPoint.y] = true;
             console.log(this.selectedPoint);
+            const x = this.selectedPoint.x;
+            const y = this.selectedPoint.y;
+            this.store.state.pk.socket.send(JSON.stringify({
+                event: 'put-piece',
+                x,
+                y
+            }));
         }
+    }
+
+    putPiece(x, y, color) {
+        const pieceInfo = {
+            color,
+            x,
+            y
+        }
+        new Piece(pieceInfo, this);
+        this.GAME_MAP[x][y] = true;
     }
 }

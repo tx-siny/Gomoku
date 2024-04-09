@@ -6,16 +6,18 @@ export default {
         opponent_username: '',
         opponent_avatar: 'https://github.com/txsiny/picture/assets/42532696/72d9a03b-e8d0-4461-ba2f-19a188e173da',
         away : false,
-        gameObject: null,
+        gameMap: null,
+        round: 0,
     },
     getters: {
     },
     mutations: {
-        updateGameObject(state, gameObject) {
-            state.gameObject = gameObject
+        updateGameMap(state, gameMap) {
+            state.gameMap = gameMap
         },
         updateSocket(state, socket) {
             state.socket = socket
+            console.log('updateSocket', state.socket)
         },
         updateStatus(state, status) {
             state.status = status
@@ -32,7 +34,11 @@ export default {
             state.status = 'waiting',
             state.opponent_username = '我的对手',
             state.opponent_avatar = 'https://github.com/txsiny/picture/assets/42532696/72d9a03b-e8d0-4461-ba2f-19a188e173da',
-            state.away = false
+            state.away = false,
+            state.round = 0
+        },
+        updateRound(state) {
+            state.round = state.round + 1
         }
     },
     actions: {
