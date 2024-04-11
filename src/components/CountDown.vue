@@ -1,82 +1,150 @@
 <template>
-    <div class="countdown">
-        <!-- 显示倒计时 -->
-        <span class="countdown-text">{{ remainingTime }}</span>
+    <div class="percent" ref="percent">
+        <svg>
+            <circle r="60" cx="55" cy="55" />
+            <circle r="55" cx="55" cy="55" :id="circleId" class="animated-circle" :style="{ stroke: calcStrokeColor() }" />
+        </svg>
+        <div class="number">
+            <h3>
+                <span id="percnt">{{ countdown }}</span>
+            </h3>
+        </div>
     </div>
 </template>
 
 <script>
-import { ref, watch } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 
 export default {
     props: {
-        initialTime: {
-            type: Number,
-            default: 30
+        identifier: {
+            type: String,
+            required: true
         }
     },
-    setup(props, { emit }) {
-        const remainingTime = ref(props.initialTime);
-        let timer = null;
+    setup(props) {
+        const INITTIME = 60;
 
-        const start = () => {
-            if (timer) return;
-            timer = setInterval(() => {
-                if (remainingTime.value > 0) {
-                    remainingTime.value--;
-                } else {
-                    clearInterval(timer);
-                    timer = null;
-                    emit('time-up');
-                }
-            }, 1000);
-        };
+        let circleId = computed(() => `circle_${props.identifier}`);
+        let circle = ref(null);
+
+        let countdown = ref(INITTIME);
+        let timer = null;
+        let running = ref(false);
+
+        const decreaseTime = () => {
+            if (countdown.value > 0) {
+                countdown.value -= 1;
+                circle.value.style.strokeDashoffset = 345.5 * (INITTIME - countdown.value) / INITTIME;
+            } else {
+                clearInterval(timer);
+                // reset();
+                // resume();
+            }
+            console.log(countdown.value)
+            console.log(circle.value.style.strokeDashoffset)
+        }
 
         const pause = () => {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
+            clearInterval(timer);
+            running.value = false;
+        }
+
+        const resume = () => {
+            if (!running.value) {
+                timer = setInterval(decreaseTime, 1000);
+                running.value = true;
             }
-        };
+        }
 
         const reset = () => {
-            pause();
-            remainingTime.value = props.initialTime;
+            clearInterval(timer);
+            countdown.value = INITTIME;
+            circle.value.style.transitionDuration = '0.5s'; // 缩短过渡动画时间
+            circle.value.style.strokeDashoffset = 0;
+            circle.value.style.stroke = calcStrokeColor();
+            running.value = false;
+            setTimeout(() => {
+                circle.value.style.transitionDuration = '5s'; // 恢复原来的过渡动画时间
+            }, 500);
         };
 
-        watch(() => props.initialTime, (newTime) => {
-            reset();
-            remainingTime.value = newTime;
+        const calcStrokeColor = () => {
+            if (countdown.value > 30) {
+                return '#43e160'; // 绿色
+            } else if (countdown.value > 15) {
+                return '#ffc107'; // 黄色
+            } else {
+                return '#dc3545'; // 红色
+            }
+        }
+
+        onMounted(() => {
+            circle.value = document.getElementById(circleId.value);
+            console.log(circle.value)
+            console.log(circleId.value)
+            // timer = setInterval(decreaseTime, 1000);
         });
 
         return {
-            remainingTime,
-            start,
+            countdown,
             pause,
-            reset
+            resume,
+            reset,
+            calcStrokeColor,
+            circleId,
+            running
         };
     }
 }
 </script>
 
+
 <style scoped>
-.countdown {
+.percent {
+    position: relative;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
+}
+
+.percent svg {
+    position: absolute;
+}
+
+.percent svg circle {
+    transform: translate(5px, 5px);
+}
+
+.percent svg circle:nth-child(1) {
+    fill: #f3f3f362;
+}
+
+.percent svg circle:nth-child(2) {
+    fill: none;
+    stroke-width: 10;
+    stroke-dasharray: 345.5;
+    stroke-dashoffset: 0;
+    stroke: #43e160;
+    transform: translate(5px, 5px) rotate(-90deg);
+    transform-origin: 55px 55px;
+    transition: stroke-dashoffset 1s linear, stroke 5s ease;
+}
+
+.percent .number {
+    position: absolute;
+    width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 30vh;
+    color: #333;
+    left: 0;
+    top: 0;
 }
 
-.countdown-text {
-    font-size: 5em; /* 增大字体 */
-    color: red; /* 设置字体颜色 */
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 添加文字阴影 */
-    animation: countdown 1s ease-out; /* 添加倒计时动画 */
-}
-
-@keyframes countdown {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+.percent .number span:nth-child(1) {
+    font-size: 48px;
+    font-weight: 600;
 }
 </style>

@@ -1,13 +1,14 @@
 <template>
     <div class="container" v-if="$store.state.pk.status === 'playing' || $store.state.pk.status === 'over'">
-        <div>
+        <!-- <div class="container"> -->
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <UserAvatar class="playing-user" :user="user1"></UserAvatar>
-            <CountDown :class="$store.state.pk.away ? 'count-down-b' : 'count-down-a'" />
+            <CountDown ref="countDownA" identifier="1" style="margin-top: 20%;" />
         </div>
         <PlayGround />
-        <div>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <UserAvatar class="playing-user" :user="user2"></UserAvatar>
-            <CountDown :class="$store.state.pk.away ? 'count-down-a' : 'count-down-b'" />
+            <CountDown ref="countDownB" identifier="2" style="margin-top: 20%;" />
         </div>
     </div>
     <MatchGround v-else />
@@ -19,7 +20,7 @@ import MatchGround from '@/components/MatchGround.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CountDown from '@/components/CountDown.vue';
 import store from '@/store';
-import { inject, onMounted, ref } from 'vue';
+import { inject, onMounted, ref, nextTick } from 'vue';
 
 export default {
     components: {
@@ -40,13 +41,29 @@ export default {
         }
 
         let user2 = ref({
-            username: store.state.pk.opponent_username,
-            avatar: store.state.pk.opponent_avatar
-            // username: store.state.user.username,
-            // avatar: store.state.user.avatar
+            // username: store.state.pk.opponent_username,
+            // avatar: store.state.pk.opponent_avatar
+            username: store.state.user.username,
+            avatar: store.state.user.avatar
         })
 
         const color = ['black', 'rgb(88, 185, 157)'];
+
+        const countDownA = ref(null);
+        const countDownB = ref(null);
+
+        let trun = ref(false);
+        const updateCountDown = () => {
+            if (trun.value) {
+                countDownA.value.reset();
+                countDownB.value.resume();
+                trun.value = false;
+            } else {
+                countDownB.value.reset();
+                countDownA.value.resume();
+                trun.value = true;
+            }
+        }
 
         onMounted(() => {
             store.commit('resetState')
@@ -59,6 +76,7 @@ export default {
                 console.log(store.state.pk.socket);
             }
 
+            // countDownA.value.pause();
             socket.onmessage = msg => {
                 const data = JSON.parse(msg.data);
                 console.log(data);
@@ -94,8 +112,17 @@ export default {
                             success() {
                                 user2.value.username = store.state.pk.opponent_username;
                                 user2.value.avatar = store.state.pk.opponent_avatar;
+                                nextTick(() => {
+                                    if (store.state.pk.away == false) {
+                                        countDownA.value.resume();
+                                        trun.value = true;
+                                    } else {
+                                        countDownB.value.resume();
+                                        trun.value = false;
+                                    }
+                                });
                             }
-                        })
+                        });
                         break;
                     case 'put-piece':
                         store.commit('updateRound');
@@ -104,10 +131,15 @@ export default {
                         } else if (store.state.pk.round % 2 == 0) {
                             store.state.pk.gameMap.putPiece(data.x, data.y, color[1]);
                         }
+                        updateCountDown();
                         break;
                     case 'game-over':
                         store.commit('updateStatus', 'over');
                         alertBoxRef.value.showAlertWithProperties('游戏结束！', 'alert-success');
+                        nextTick(() => {
+                            countDownA.value.reset();
+                            countDownB.value.reset();
+                        })
                         break;
                     default:
                         break;
@@ -119,6 +151,8 @@ export default {
             user1,
             user2,
             alertBoxRef,
+            countDownA,
+            countDownB
         }
     }
 }
@@ -129,15 +163,6 @@ export default {
     display: flex;
     justify-content: space-around;
     align-items: center;
-}
-
-.class-playing-user {
-    width: 10vw;
-    height: 10vw;
-    background-size: cover;
-    background-position: center;
-    border-radius: 50%;
-    margin-top: 10vh;
 }
 
 .playing-user /deep/ .user-avatar {

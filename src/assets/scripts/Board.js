@@ -9,11 +9,11 @@ export class Board extends GameObject {
         this.gameMap = gameMap;
 
         this.originPoints = [
-            { x: 3, y: 3 },
-            { x: 3, y: 11 },
-            { x: 11, y: 3 },
-            { x: 11, y: 11 },
-            { x: 7, y: 7 }
+            { x: 4, y: 4 },
+            { x: 4, y: 12 },
+            { x: 12, y: 4 },
+            { x: 12, y: 12 },
+            { x: 8, y: 8 }
         ];
     }
 

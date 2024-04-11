@@ -11,8 +11,8 @@ export class GameMap extends GameObject {
         this.ctx = ctx;
         this.parent = parent;
 
-        this.rowCount = 15;
-        this.colCount = 15;
+        this.rowCount = 17;
+        this.colCount = 17;
 
         // 记录该点是否放置棋子
         this.GAME_MAP = new Array(this.rowCount).fill(false).map(() => new Array(this.colCount).fill(false));

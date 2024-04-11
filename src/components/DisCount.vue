@@ -1,116 +1,135 @@
 <template>
-    <div class="circle" style="--clr:#0cfc43;">
-        <div class="dots sec_dot"></div>
+    <div class="percent" ref="percent">
         <svg>
-            <circle cx="70" cy="70" r="70"></circle>
-            <circle cx="70" cy="70" r="70" id="ss"></circle>
+            <circle r="60" cx="55" cy="55" />
+            <circle r="55" cx="55" cy="55" id="circle" class="animated-circle" :style="{ stroke: calcStrokeColor() }" />
         </svg>
-        <div id="seconds">00</div>
+        <div class="number">
+            <h3>
+                <span id="percnt">{{ countdown }}</span>
+            </h3>
+        </div>
     </div>
 </template>
 
+<script>
+import { ref, onMounted } from 'vue';
+
+export default {
+    setup() {
+        const INITTIME = 60;
+
+        let countdown = ref(INITTIME);
+        let circle = ref(null);
+        let timer = null;
+        let running = ref(false);
+
+        const decreaseTime = () => {
+            if (countdown.value > 0) {
+                countdown.value -= 1;
+                circle.value.style.strokeDashoffset = 345.5 * (INITTIME - countdown.value) / INITTIME;
+            } else {
+                clearInterval(timer);
+                // reset();
+                // resume();
+            }
+        }
+
+        const pause = () => {
+            clearInterval(timer);
+            running.value = false;
+        }
+
+        const resume = () => {
+            if (!running.value) {
+                timer = setInterval(decreaseTime, 1000);
+                running.value = true;
+            }
+        }
+
+        const reset = () => {
+            clearInterval(timer);
+            countdown.value = INITTIME;
+            circle.value.style.transitionDuration = '0.5s'; // 缩短过渡动画时间
+            circle.value.style.strokeDashoffset = 0;
+            circle.value.style.stroke = calcStrokeColor();
+            running.value = false;
+            setTimeout(() => {
+                circle.value.style.transitionDuration = '5s'; // 恢复原来的过渡动画时间
+            }, 500);
+        };
+
+        const calcStrokeColor = () => {
+            if (countdown.value > 30) {
+                return '#43e160'; // 绿色
+            } else if (countdown.value > 15) {
+                return '#ffc107'; // 黄色
+            } else {
+                return '#dc3545'; // 红色
+            }
+        }
+
+        onMounted(() => {
+            circle.value = document.getElementById("circle");
+            timer = setInterval(decreaseTime, 1000);
+        });
+        return {
+            countdown,
+            pause,
+            resume,
+            reset,
+            calcStrokeColor
+        };
+    }
+}
+</script>
+
+
 <style scoped>
-*{
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+.percent {
+    position: relative;
+    justify-content: center;
+    width: 120px;
+    height: 120px;
 }
 
-body{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: #2f363e;
-  font-family: 'Poppins', sans-serif;
+.percent svg {
+    position: absolute;
 }
 
-#time{
-  display: flex;
-  gap: 30px;
+.percent svg circle {
+    transform: translate(5px, 5px);
 }
 
-.circle{
-  position: relative;
-  width: 150px;
-  height: 150px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.percent svg circle:nth-child(1) {
+    fill: #f3f3f362;
 }
 
-.circle svg{
-  position: relative;
-  width: 150px;
-  height: 150px;
-  transform: rotate(270deg);
+.percent svg circle:nth-child(2) {
+    fill: none;
+    stroke-width: 10;
+    stroke-dasharray: 345.5;
+    stroke-dashoffset: 0;
+    stroke: #43e160;
+    transform: translate(5px, 5px) rotate(-90deg);
+    transform-origin: 55px 55px;
+    transition: stroke-dashoffset 1s linear, stroke 5s ease;
 }
 
-.circle svg circle{
-  width: 100%;
-  height: 100%;
-  fill: transparent;
-  stroke-width: 8;
-  stroke: #282828;
-  stroke-linecap: round;
-  transform: translate(5px, 5px);
-}
-.circle svg circle:nth-child(2) {
-  stroke: var(--clr);
-  stroke-dasharray: 440;
-  stroke-dashoffset: 440;
+.percent .number {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #333;
+    left: 0;
+    top: 0;
 }
 
-#time div{
-  position: absolute;
-  text-align: center;
-  font-weight: 500;
-  color: #fff;
-  font-size: 1.5em;
-}
-
-#time div span{
-  position: absolute;
-  font-size: 0.35em;
-  font-weight: 300;
-  transform: translateX(-50%) translateY(-10px);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-#time .dots{
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  display: flex;
-  justify-content:center;
-  align-items: flex-start;
-  z-index: 1000;
-}
-
-#time .dots::before{
-  content: '';
-  position: absolute;
-  top:-3px;
-  width: 15px;
-  height: 15px;
-  background-color: var(--clr);
-  border-radius: 50%;
-  box-shadow: 0 0 20px var(--clr), 0 0 60px var(--clr);
-}
-
-.newYear{
-  display: none;
-  font-size: 8em;
-  font-weight: 500;
-  color: #fff;
-  text-align: center;
-  line-height: 0.6em;
-}
-
-.newYear span{
-  font-size: 0.5em;
-  font-weight: 300;
+.percent .number span:nth-child(1) {
+    font-size: 48px;
+    font-weight: 600;
 }
 </style>
