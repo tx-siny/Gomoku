@@ -18,14 +18,17 @@ export class HighLight extends GameObject {
         const ctx = this.gameMap.ctx;
 
         if (this.gameMap.GAME_MAP[selectedPoint.x][selectedPoint.y]) {
+            console.log("已存在")
             return;
         }
 
-        if (this.gameMap.store.state.pk.status == 'over') {
+        if (this.gameMap.store.state.pk.status == 'over' || this.gameMap.store.state.pk.status == 'record') {
+            console.log("over or record")
             return;
         }
 
         if (this.gameMap.store.state.pk.round % 2 ^ this.gameMap.store.state.pk.away) {
+            console.log("非本回合")
             return;
         }
 

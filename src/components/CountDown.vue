@@ -41,8 +41,8 @@ export default {
                 // reset();
                 // resume();
             }
-            console.log(countdown.value)
-            console.log(circle.value.style.strokeDashoffset)
+            // console.log(countdown.value)
+            // console.log(circle.value.style.strokeDashoffset)
         }
 
         const pause = () => {
@@ -81,8 +81,8 @@ export default {
 
         onMounted(() => {
             circle.value = document.getElementById(circleId.value);
-            console.log(circle.value)
-            console.log(circleId.value)
+            // console.log(circle.value)
+            // console.log(circleId.value)
             // timer = setInterval(decreaseTime, 1000);
         });
 

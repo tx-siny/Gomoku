@@ -1,5 +1,6 @@
 <template>
-  <NavBar />
+  <NavBar style="position:fixed; top: 0; width: 100%; z-index: 1000;" />
+  <div class="nav-bar-placeholder" style="height: 50px;"></div>
   <router-view></router-view>
   <AlertBox ref="alertBoxRef" />
 </template>

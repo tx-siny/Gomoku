@@ -12,6 +12,7 @@
         </div>
     </div>
     <MatchGround v-else />
+    <ResultPanel v-if="$store.state.pk.status === 'over'" />
 </template>
 
 <script>
@@ -19,6 +20,7 @@ import PlayGround from '@/components/PlayGround.vue';
 import MatchGround from '@/components/MatchGround.vue';
 import UserAvatar from '@/components/UserAvatar.vue';
 import CountDown from '@/components/CountDown.vue';
+import ResultPanel from '@/components/ResultPanel.vue';
 import store from '@/store';
 import { inject, onMounted, ref, nextTick } from 'vue';
 
@@ -27,7 +29,8 @@ export default {
         PlayGround,
         MatchGround,
         UserAvatar,
-        CountDown
+        CountDown,
+        ResultPanel
     },
     setup() {
         const alertBoxRef = inject('alertBoxRef');
@@ -66,8 +69,6 @@ export default {
         }
 
         onMounted(() => {
-            store.commit('resetState')
-
             socket = new WebSocket(socketUrl);
 
             socket.onopen = () => {
@@ -126,6 +127,10 @@ export default {
                         break;
                     case 'put-piece':
                         store.commit('updateRound');
+                        store.commit('updateLastPiece', {
+                            x: data.x,
+                            y: data.y
+                        });
                         if (store.state.pk.round % 2 == 1) {
                             store.state.pk.gameMap.putPiece(data.x, data.y, color[0]);
                         } else if (store.state.pk.round % 2 == 0) {
@@ -135,6 +140,7 @@ export default {
                         break;
                     case 'game-over':
                         store.commit('updateStatus', 'over');
+                        store.commit('updateWinner', data.winner_id);
                         alertBoxRef.value.showAlertWithProperties('游戏结束！', 'alert-success');
                         nextTick(() => {
                             countDownA.value.reset();
@@ -146,7 +152,9 @@ export default {
                 }
             }
         })
-
+        
+        store.commit('resetState')
+        
         return {
             user1,
             user2,

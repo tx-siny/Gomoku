@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PkView from '../views/pk/PkIndexView.vue'
 import RecordIndexView from '../views/record/RecordIndexView.vue'
 import UserLoginView from '../views/user/UserLoginView.vue'
+import RecordContentView from '../views/record/RecordContentView.vue'
 import store from '@/store'
 
 const routes = [
@@ -20,6 +21,11 @@ const routes = [
     path: '/record/',
     name: 'record_index',
     component: RecordIndexView
+  },
+  {
+    path: '/record/:recordId/',
+    name: 'record_content',
+    component: RecordContentView
   },
   // {
   //   path: '/record/:id',

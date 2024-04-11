@@ -2,6 +2,7 @@ import { GameObject } from "./GameObject";
 import { Board } from "./Board";
 import { HighLight } from "./HighLight";
 import { Piece } from "./Piece";
+import { PieceHighLight } from "./PieceHighLight";
 
 export class GameMap extends GameObject {
     constructor(ctx, parent, store) {
@@ -24,10 +25,47 @@ export class GameMap extends GameObject {
     }
 
     start() {
+        if (this.store.state.pk.status == 'record') {
+            const a_steps = this.store.state.record.stepsA;
+            const b_steps = this.store.state.record.stepsB;
+
+            let turn = 'black';
+            const interval = setInterval(() => {
+                if (turn == 'black') {
+                    console.log(a_steps);
+                    const step = a_steps.shift();
+                    if (step) {
+                        this.putPiece(step.x, step.y, 'black');
+                        this.store.commit('updateLastPiece', {
+                            x: step.x,
+                            y: step.y
+                        })
+                        turn = 'white';
+                    } else {
+                        if (b_steps != null) return;
+                        clearInterval(interval);
+                    }
+                } else {
+                    console.log(b_steps)
+                    const step = b_steps.shift();
+                    if (step) {
+                        this.putPiece(step.x, step.y, 'rgb(88, 185, 157)');
+                        this.store.commit('updateLastPiece', {
+                            x: step.x,
+                            y: step.y
+                        })
+                        turn = 'black';
+                    } else {
+                        if (a_steps != null) return;
+                        clearInterval(interval);
+                    }
+                }
+            }, 1000)
+        }
         this.addMouseEventListener();
         this.Board = new Board(this.rowCount, this.colCount, this);
         new HighLight(this);
-
+        new PieceHighLight(this);
     }
 
     // 更新尺寸
@@ -97,6 +135,9 @@ export class GameMap extends GameObject {
     }
 
     handleMouseClick() {
+        if (this.store.state.pk.status != 'playing') {
+            return;
+        }
         if (this.selectedPoint && !this.GAME_MAP[this.selectedPoint.x][this.selectedPoint.y]) {
             // const pieceInfo = {
             //     // color: 'black',
