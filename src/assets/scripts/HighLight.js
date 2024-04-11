@@ -29,8 +29,8 @@ export class HighLight extends GameObject {
             return;
         }
 
-        const centerX = selectedPoint.x * gridSize;
-        const cneterY = selectedPoint.y * gridSize;
+        const centerX = selectedPoint.x * gridSize + gridSize / 2;
+        const cneterY = selectedPoint.y * gridSize + gridSize / 2;
 
         const lineLength = 0.3 * gridSize;
         const lineDistance = 0.12 * gridSize;

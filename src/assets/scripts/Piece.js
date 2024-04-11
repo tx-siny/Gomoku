@@ -23,8 +23,8 @@ export class Piece extends GameObject {
         const ctx = this.gameMap.ctx;
         const gridSize = this.gameMap.gridSize;
 
-        const centerX = this.x * gridSize;
-        const centerY = this.y * gridSize;
+        const centerX = this.x * gridSize + gridSize / 2;
+        const centerY = this.y * gridSize + gridSize / 2;
 
         ctx.fillStyle = this.color;
         ctx.beginPath();

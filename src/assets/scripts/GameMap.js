@@ -11,8 +11,8 @@ export class GameMap extends GameObject {
         this.ctx = ctx;
         this.parent = parent;
 
-        this.rowCount = 17;
-        this.colCount = 17;
+        this.rowCount = 15;
+        this.colCount = 15;
 
         // 记录该点是否放置棋子
         this.GAME_MAP = new Array(this.rowCount).fill(false).map(() => new Array(this.colCount).fill(false));
@@ -32,9 +32,9 @@ export class GameMap extends GameObject {
 
     // 更新尺寸
     updateSize() {
-        this.gridSize = Math.min(this.parent.clientWidth / (this.colCount - 1), this.parent.clientHeight / (this.rowCount - 1));
-        this.ctx.canvas.width = (this.colCount - 1) * this.gridSize;
-        this.ctx.canvas.height = (this.rowCount - 1) * this.gridSize;
+        this.gridSize = Math.min(this.parent.clientWidth / this.colCount, this.parent.clientHeight / this.rowCount);
+        this.ctx.canvas.width = this.colCount * this.gridSize;
+        this.ctx.canvas.height = this.rowCount * this.gridSize;
     }
 
     update() {
@@ -53,8 +53,8 @@ export class GameMap extends GameObject {
     handleMouseMove(event) {
         const rect = this.ctx.canvas.getBoundingClientRect();
         const mousePos = {
-            x: event.clientX - rect.left,
-            y: event.clientY - rect.top
+            x: Math.max(event.clientX - rect.left - this.gridSize / 2, 0),
+            y: Math.max(event.clientY - rect.top - this.gridSize / 2, 0)
         };
 
         let mindistance = Infinity;
@@ -78,10 +78,10 @@ export class GameMap extends GameObject {
         if (nearestPoint && nearestPoint.x >= 0 && nearestPoint.x < this.colCount && nearestPoint.y >= 0 && nearestPoint.y < this.rowCount) {
             this.selectedPoint = nearestPoint;
             this.isMouseInside = true;
-            this.selectedPoint.x = Math.max(1, this.selectedPoint.x);
-            this.selectedPoint.x = Math.min(this.colCount - 2, this.selectedPoint.x);
-            this.selectedPoint.y = Math.max(1, this.selectedPoint.y);
-            this.selectedPoint.y = Math.min(this.rowCount - 2, this.selectedPoint.y);
+            this.selectedPoint.x = Math.max(0, this.selectedPoint.x);
+            this.selectedPoint.x = Math.min(this.colCount, this.selectedPoint.x);
+            this.selectedPoint.y = Math.max(0, this.selectedPoint.y);
+            this.selectedPoint.y = Math.min(this.rowCount, this.selectedPoint.y);
         } else {
             this.selectedPoint = null;
             this.isMouseInside = false;

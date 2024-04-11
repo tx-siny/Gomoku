@@ -65,14 +65,14 @@ export default {
             circle.value.style.stroke = calcStrokeColor();
             running.value = false;
             setTimeout(() => {
-                circle.value.style.transitionDuration = '5s'; // 恢复原来的过渡动画时间
+                circle.value.style.transitionDuration = '20s'; // 恢复原来的过渡动画时间
             }, 500);
         };
 
         const calcStrokeColor = () => {
-            if (countdown.value > 30) {
+            if (countdown.value > 45) {
                 return '#43e160'; // 绿色
-            } else if (countdown.value > 15) {
+            } else if (countdown.value > 25) {
                 return '#ffc107'; // 黄色
             } else {
                 return '#dc3545'; // 红色
@@ -128,7 +128,7 @@ export default {
     stroke: #43e160;
     transform: translate(5px, 5px) rotate(-90deg);
     transform-origin: 55px 55px;
-    transition: stroke-dashoffset 1s linear, stroke 5s ease;
+    transition: stroke-dashoffset 1s linear, stroke 20s ease;
 }
 
 .percent .number {
