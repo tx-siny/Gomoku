@@ -1,4 +1,5 @@
 import $ from 'jquery';
+import store from '.';
 
 export default {
     state: {
@@ -30,7 +31,8 @@ export default {
     actions: {
         login(context, data) {
             $.ajax({
-                url: "http://127.0.0.1:2002/user/login/",
+                // url: "http://127.0.0.1:2002/user/login/",
+                url: `http://${store.state.base_url}/user/login/`,
                 type: "POST",
                 data: {
                     username: data.username,
@@ -56,7 +58,8 @@ export default {
         },
         getInfo(context, data) {
             $.ajax({
-                url: "http://127.0.0.1:2002/user/info/",
+                // url: "http://127.0.0.1:2002/user/info/",
+                url: `http://${store.state.base_url}/user/info/`,
                 type: "GET",
                 async: false,
                 headers: {

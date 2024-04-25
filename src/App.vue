@@ -32,5 +32,7 @@ export default {
 body {
   background-image: url('@/assets/images/background.jpg');
   background-size: cover;
+  /* 纯白背景 */
+  /* background-color: #f5f5f5; */
 }
 </style>

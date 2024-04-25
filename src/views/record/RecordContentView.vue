@@ -49,7 +49,8 @@ export default {
 
         const getRecord = recordId => {
             $.ajax({
-                url: 'http://127.0.0.1:2002/record/info/',
+                // url: 'http://127.0.0.1:2002/record/info/',
+                url: `http://${store.state.base_url}/record/info/`,
                 type: 'GET',
                 async: false,
                 data: {

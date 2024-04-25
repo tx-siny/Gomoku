@@ -46,7 +46,7 @@ export class GameMap extends GameObject {
                         clearInterval(interval);
                     }
                 } else {
-                    console.log(b_steps)
+                    // console.log(b_steps)
                     const step = b_steps.shift();
                     if (step) {
                         this.putPiece(step.x, step.y, 'rgb(88, 185, 157)');

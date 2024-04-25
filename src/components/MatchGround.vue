@@ -3,11 +3,11 @@
         <UserAvatar class="matching-user" :user="user1"></UserAvatar>
         <div class="bot-select">
             <UserAvatar class="matching-user" :user="user2"></UserAvatar>
-            <select class="form-select" :disabled="$store.state.pk.status !== 'waiting'"
+            <select class="form-select" v-model="opponent" :disabled="$store.state.pk.status !== 'waiting'"
                 style=" margin-top: 10%; width: 50%; ">
-                <option value="-1" selected>玩家匹配</option>
-                <option value="1">人机：简单</option>
-                <option value="2">人机：困难</option>
+                <option value="people" selected>玩家匹配</option>
+                <option value="bot-easy">人机对战</option>
+                <!-- <option value="bot-difficult">人机：困难</option> -->
             </select>
         </div>
     </div>
@@ -20,7 +20,7 @@
 <script>
 import UserAvatar from '@/components/UserAvatar.vue';
 import store from '@/store';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 
 
 export default {
@@ -48,15 +48,17 @@ export default {
         //     avatar: store.state.pk.opponent_avatar
         // })
 
+        let opponent = ref('people');
+
         const matchBtnClick = () => {
             if (store.state.pk.status === 'matching') {
                 store.state.pk.socket.send(JSON.stringify({
-                    event: 'cancel-matching'
+                    event: 'cancel-matching',
                 }));
             } else {
                 store.state.pk.socket.send(JSON.stringify({
                     event: 'start-matching',
-                    opponent: 'people'
+                    opponent: opponent.value
                 }));
             }
         }
@@ -65,7 +67,8 @@ export default {
             user1,
             user2,
             btnMessage,
-            matchBtnClick
+            matchBtnClick,
+            opponent
         }
     }
 }

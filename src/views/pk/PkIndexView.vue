@@ -36,7 +36,8 @@ export default {
         const alertBoxRef = inject('alertBoxRef');
 
         let socket = null;
-        const socketUrl = `ws://127.0.0.1:2002/websocket/${store.state.user.token}/`;
+        // const socketUrl = `ws://127.0.0.1:2002/websocket/${store.state.user.token}/`;
+        const socketUrl = `ws://${store.state.base_url}/websocket/${store.state.user.token}/`;
 
         const user1 = {
             username: store.state.user.username,
@@ -50,7 +51,7 @@ export default {
             avatar: store.state.user.avatar
         })
 
-        const color = ['black', 'rgb(88, 185, 157)'];
+        const color = ['rgb(48, 61, 78)', 'rgb(88, 185, 157)'];
 
         const countDownA = ref(null);
         const countDownB = ref(null);

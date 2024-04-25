@@ -119,7 +119,8 @@ export default {
         const pull_page = page => {
             current_page.value = page;
             $.ajax({
-                url: 'http://127.0.0.1:2002/record/list/',
+                // url: 'http://127.0.0.1:2002/record/list/',
+                url: `http://${store.state.base_url}/record/list/`,
                 type: 'GET',
                 data: {
                     page: page

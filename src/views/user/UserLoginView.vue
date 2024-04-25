@@ -97,7 +97,8 @@ export default {
 
         const register = () => {
             $.ajax({
-                url: 'http://127.0.0.1:2002/user/register/',
+                // url: 'http://127.0.0.1:2002/user/register/',
+                url: `http://${store.state.base_url}/user/register/`,
                 type: 'POST',
                 data: {
                     username: username.value,

@@ -65,7 +65,7 @@ export default {
             circle.value.style.stroke = calcStrokeColor();
             running.value = false;
             setTimeout(() => {
-                circle.value.style.transitionDuration = '20s'; // 恢复原来的过渡动画时间
+                circle.value.style.transitionDuration = '1s'; // 恢复原来的过渡动画时间
             }, 500);
         };
 
@@ -110,6 +110,8 @@ export default {
 
 .percent svg {
     position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 .percent svg circle {
