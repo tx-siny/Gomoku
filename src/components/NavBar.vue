@@ -19,6 +19,10 @@
                         </a>
                         <ul class="dropdown-menu">
                             <li>
+                                <a class="dropdown-item" @click="userIndex($store.state.user.id)" href="#">个人中心</a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
                                 <a class="dropdown-item" @click="logout" href="#">退出登录</a>
                             </li>
                         </ul>
@@ -35,6 +39,7 @@
 </template>
 
 <script>
+import router from '@/router';
 import store from '@/store';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
@@ -48,9 +53,19 @@ export default {
             store.dispatch('logout');
         }
 
+        const userIndex = userId => {
+            router.push({
+                name: 'user_index',
+                params: {
+                    userId
+                }
+            })
+        }
+
         return {
             route_name,
-            logout
+            logout,
+            userIndex
         }
     }
 }

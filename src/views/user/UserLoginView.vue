@@ -142,7 +142,7 @@ export default {
 
 <style scoped>
 div.content-field {
-    width: 60%;
+    width: 50%;
 }
 
 button {

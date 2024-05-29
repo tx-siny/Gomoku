@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import PkView from '../views/pk/PkIndexView.vue'
 import RecordIndexView from '../views/record/RecordIndexView.vue'
 import UserLoginView from '../views/user/UserLoginView.vue'
+import UserIndexView from '../views/user/UserIndexView.vue'
 import RecordContentView from '../views/record/RecordContentView.vue'
 import store from '@/store'
 
@@ -26,6 +27,11 @@ const routes = [
     path: '/record/:recordId/',
     name: 'record_content',
     component: RecordContentView
+  },
+  {
+    path: '/user/:userId/',
+    name: 'user_index',
+    component: UserIndexView
   },
   // {
   //   path: '/record/:id',
